@@ -77,7 +77,7 @@
 
 
 
-#define printf(...)  // comment this out for lots of info
+//#define printf(...)  // comment this out for lots of info
 
 
 // a list of all opened HID devices, so the caller can
