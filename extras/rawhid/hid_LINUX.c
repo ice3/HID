@@ -13,10 +13,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above description, website URL and copyright notice and this permission
  * notice shall be included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -72,7 +72,7 @@
 // Puppy 4.3: no hidraw devices (has hiddev), 2.6.30.5 kernel
 // Damn Small 4.4.10: (would not boot)
 // Gentoo 10.0-test20090926: (would not boot)
-// PCLinuxOS 2009.2: (would not boot) 
+// PCLinuxOS 2009.2: (would not boot)
 // Slackware: (no live cd available?  www.slackware-live.org dead)
 
 
@@ -118,9 +118,18 @@ int rawhid_recv(int num, void *buf, int len, int timeout)
 	hid_t *hid;
 	int r;
 
+	printf("rawhid recv");
+	printf(" * num: %d", num);
+
 	hid = get_hid(num);
-	if (!hid || !hid->open) return -1;
+	if (!hid || !hid->open) {
+		printf(" * no hid :(");
+		return -1;
+	}
 	r = usb_interrupt_read(hid->usb, hid->ep_in, buf, len, timeout);
+	printf(" * usb interrupt read: %d", num);
+	printf(" * config -- usb: %d -- ep_in: %d", hid->usb, hid->ep_in);
+
 	if (r >= 0) return r;
 	if (r == -110) return 0;  // timeout
 	return -1;
@@ -139,11 +148,17 @@ int rawhid_send(int num, void *buf, int len, int timeout)
 {
 	hid_t *hid;
 
+	printf("rawhid send");
+	printf(" * num: %d", num);
+
 	hid = get_hid(num);
 	if (!hid || !hid->open) return -1;
 	if (hid->ep_out) {
+		printf(" * usb interupt write");
+		printf(" * config -- usb: %d -- ep_in: %d", hid->usb, hid->ep_out);
 		return usb_interrupt_write(hid->usb, hid->ep_out, buf, len, timeout);
 	} else {
+		printf(" * usb control msg");
 		return usb_control_msg(hid->usb, 0x21, 9, 0x0200, hid->iface, buf, len, timeout);
 	}
 }
@@ -245,7 +260,7 @@ int rawhid_open(int max, int vid, int pid, int usage_page, int usage)
 					if (parsed_usage_page && parsed_usage) break;
 				}
 				if ((!parsed_usage_page) || (!parsed_usage) ||
-				  (usage_page > 0 && parsed_usage_page != usage_page) || 
+				  (usage_page > 0 && parsed_usage_page != usage_page) ||
 				  (usage > 0 && parsed_usage != usage)) {
 					usb_release_interface(u, i);
 					continue;
