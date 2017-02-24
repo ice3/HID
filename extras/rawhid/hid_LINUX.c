@@ -118,17 +118,17 @@ int rawhid_recv(int num, void *buf, int len, int timeout)
 	hid_t *hid;
 	int r;
 
-	printf("rawhid recv");
-	printf(" * num: %d", num);
+	printf("rawhid recv\n");
+	printf(" * num: %d\n", num);
 
 	hid = get_hid(num);
 	if (!hid || !hid->open) {
-		printf(" * no hid :(");
+		printf(" * no hid :(\n");
 		return -1;
 	}
 	r = usb_interrupt_read(hid->usb, hid->ep_in, buf, len, timeout);
-	printf(" * usb interrupt read: %d", num);
-	printf(" * config -- usb: %d -- ep_in: %d", hid->usb, hid->ep_in);
+	printf(" * usb interrupt read: %d\n", num);
+	printf(" * config -- usb: %d -- ep_in: %d\n", hid->usb, hid->ep_in);
 
 	if (r >= 0) return r;
 	if (r == -110) return 0;  // timeout
@@ -148,17 +148,17 @@ int rawhid_send(int num, void *buf, int len, int timeout)
 {
 	hid_t *hid;
 
-	printf("rawhid send");
-	printf(" * num: %d", num);
+	printf("rawhid send\n");
+	printf(" * num: %d\n", num);
 
 	hid = get_hid(num);
 	if (!hid || !hid->open) return -1;
 	if (hid->ep_out) {
-		printf(" * usb interupt write");
-		printf(" * config -- usb: %d -- ep_in: %d", hid->usb, hid->ep_out);
+		printf(" * usb interupt write\n");
+		printf(" * config -- usb: %d -- ep_in: %d\n", hid->usb, hid->ep_out);
 		return usb_interrupt_write(hid->usb, hid->ep_out, buf, len, timeout);
 	} else {
-		printf(" * usb control msg");
+		printf(" * usb control msg\n");
 		return usb_control_msg(hid->usb, 0x21, 9, 0x0200, hid->iface, buf, len, timeout);
 	}
 }
